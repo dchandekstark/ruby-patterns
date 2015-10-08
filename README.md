@@ -1,2 +1,2 @@
-# ruby-patterns
+# ruby_patterns
 OO Design Patterns implemented in Ruby
