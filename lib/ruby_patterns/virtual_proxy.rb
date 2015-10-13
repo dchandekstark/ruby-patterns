@@ -1,11 +1,12 @@
 module RubyPatterns
   class VirtualProxy
 
-    attr_reader :__key
-    private :__key
+    private
 
+    attr_reader :__key
     attr_accessor :__real
-    private :__real=, :__real
+
+    public
 
     GHOST = "GHOST"
     LOADED = "LOADED"
@@ -28,7 +29,11 @@ module RubyPatterns
     end
 
     def __state
-      __real ? LOADED : GHOST
+      if __real.nil?
+        GHOST
+      else
+        LOADED
+      end
     end
 
     protected
