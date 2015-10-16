@@ -1,21 +1,20 @@
 module RubyPatterns
-  class VirtualProxy
+  module VirtualProxy
 
-    private
+    def self.included(base)
+      base.class_eval do
+        attr_reader :__key
+        attr_accessor :__real
 
-    attr_reader :__key, :__loader
-    attr_accessor :__real
-
-    public
-
-    GHOST = "GHOST"
-    LOADED = "LOADED"
+        class << self
+          attr_accessor :loader
+        end
+      end
+    end
 
     # @param key [Object] key used by the loader to load the real object
-    # @param loader [Object] loader method/proc that receives :call with key and returns real object
-    def initialize(key, loader)
+    def initialize(key)
       @__key = key
-      @__loader = loader
       @__real = nil
       self
     end
@@ -24,31 +23,9 @@ module RubyPatterns
 
     def method_missing(name, *args, &block)
       if __real.nil?
-        __load
+        self.__real = self.class.loader.call(__key)
       end
       __real.send(name, *args, &block)
-    end
-
-    private
-
-    def __load
-      self.__real = __loader.call(__key)
-    end
-
-    def __state
-      if __real.nil?
-        GHOST
-      else
-        LOADED
-      end
-    end
-
-    def ghost?
-      __state == GHOST
-    end
-
-    def loaded?
-      __state == LOADED
     end
 
   end
